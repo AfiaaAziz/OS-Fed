@@ -1,0 +1,4 @@
+method,paper_acc,paper_MB_per_round
+"FedAvg (paper, ResNet-18)",0.476,447.2
+OS-Fed 2x2 (paper),0.422,0.12
+OS-Fed 4x4 (paper),0.449,0.12

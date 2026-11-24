@@ -1,0 +1,4 @@
+method,rounds,final_test_acc,best_test_acc,upload_MB_per_round_total,download_MB_per_round_total,total_upload_MB,rounds_to_0.40
+FedAvg (wavg),100,0.6584,0.6607,21.8039,21.8039,2180.39,3
+OS-Fed g4 (ec0),100,0.435,0.435,0.1293,21.8039,12.93,86
+"OS-Fed g4 (ec1, diverged)",100,0.1,0.4626,0.1293,21.8039,12.93,25
