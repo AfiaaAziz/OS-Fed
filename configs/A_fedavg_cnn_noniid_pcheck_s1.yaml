@@ -1,0 +1,20 @@
+# Step 9 equivalence check: SAME config is run with run_single (one process) and run_process (many processes).
+# Small on purpose (10 clients x 500 samples, 3 rounds, 2 local epochs) so it finishes in minutes.
+purpose: "step 9 check: single-process vs multi-process FedAvg, small data"
+tier: A
+method: fedavg
+model: cnn
+norm: batch
+partition: cifar10_dir0.5_c10_seed100
+n_clients: 10
+samples_per_client: 500
+rounds: 3
+local_epochs: 2
+batch_size: 64
+lr: 0.01
+lr_schedule: cosine
+momentum: 0.0
+weight_decay: 0.0
+seed: 1
+aggregation: wavg
+ckpt_every: 1

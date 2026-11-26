@@ -12,3 +12,5 @@
 | 20261122_A_fedavg_cnn_noniid_r3_s1__net0 | 2026-11-22 |  | FedAvg 10 clients full data 3 rounds (timing and sanity) | done | final test_acc=0.4127 |
 | 20261122_A_fedavg_cnn_noniid_wavg_s1__net0 | 2026-11-22 |  | FedAvg main baseline, small CNN, non-IID, data-size weighted, seed 1 | started |  |
 | 20261122_A_fedavg_cnn_noniid_wavg_s1__net0 | 2026-11-22 |  | FedAvg main baseline, small CNN, non-IID, data-size weighted, seed 1 | done | final test_acc=0.6584 |
+| 20261126_A_fedavg_cnn_noniid_pcheck_s1__net0 | 2026-11-26 | oop | step 9 check: single-process vs multi-process FedAvg, small data | started |  |
+| 20261126_A_fedavg_cnn_noniid_pcheck_s1__net0 | 2026-11-26 | oop | step 9 check: single-process vs multi-process FedAvg, small data | done | final test_acc=0.1639 |

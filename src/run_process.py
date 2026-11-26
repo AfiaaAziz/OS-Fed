@@ -205,12 +205,18 @@ def main() -> None:
     out_q = ctx.Queue()
     in_qs = {}
     procs = {}
+    samples_per_client = cfg.get("samples_per_client")
     for cid in range(n_clients):
+        indices = parts[cid]
+        if samples_per_client:
+            rng = np.random.default_rng(seed * 1000 + cid)
+            count = min(int(samples_per_client), len(indices))
+            indices = np.sort(rng.choice(indices, size=count, replace=False))
         in_q = ctx.Queue()
         in_qs[cid] = in_q
         p = ctx.Process(
             target=client_worker,
-            args=(cid, cfg, parts[cid].tolist(), str(device), in_q, out_q),
+            args=(cid, cfg, indices.tolist(), str(device), in_q, out_q),
             daemon=True,
         )
         p.start()
