@@ -55,6 +55,7 @@ from src.metrics import (
     wire_bytes,
 )
 from src.model import build_model
+from src.network import NET_CLIENT_COLUMNS, NetworkEmulator, parse_condition
 from src.osfed import OSFed
 from src.partition import load_partition
 from src.server import Server
@@ -72,9 +73,10 @@ REQUIRED = [
 # --------------------------------------------------------------------------- #
 # Client worker process                                                       #
 # --------------------------------------------------------------------------- #
-def client_worker(client_id, cfg, indices, device_str, in_q, out_q):
+def client_worker(client_id, cfg, indices, device_str, in_q, out_q, net_cfg, n_clients):
     """One client lives here for the whole run. Reusable across rounds."""
     torch.set_num_threads(1)  # 10 processes must not fight over 4 cores
+    emu = NetworkEmulator(net_cfg, n_clients)
     device = torch.device(device_str)
     seed = int(cfg["seed"])
     set_seed(seed + client_id)
@@ -108,10 +110,18 @@ def client_worker(client_id, cfg, indices, device_str, in_q, out_q):
 
         global_state_bytes, lr = payload
         global_state = from_bytes(global_state_bytes)
+        net_down_s = emu.pause_download(payload_bytes(global_state))
 
         t0 = time.perf_counter()
         message, info = method.client_update(client, global_state, float(lr))
         compute_s = time.perf_counter() - t0
+
+        slow_extra_s = emu.pause_slow(
+            client_id, float(info["local_train_s"]) + float(info.get("snapshot_opt_s", 0.0))
+        )
+        up_bytes = payload_bytes(message)
+        net_up_s = emu.pause_upload(up_bytes)
+        info.update(net_download_s=net_down_s, slow_extra_s=slow_extra_s, net_upload_s=net_up_s)
 
         message_bytes = to_bytes(message)
         out_q.put((
@@ -120,7 +130,7 @@ def client_worker(client_id, cfg, indices, device_str, in_q, out_q):
                 "client_id": client_id,
                 "n_samples": client.n_samples,
                 "message_bytes": message_bytes,            # serialized (exact wire)
-                "payload_bytes": payload_bytes(message),   # tensor bytes (comparable)
+                "payload_bytes": up_bytes,                 # tensor bytes (comparable)
                 "wire_bytes": len(message_bytes),
                 "info": info,
                 "compute_s": compute_s,
@@ -140,6 +150,8 @@ def main() -> None:
     parser.add_argument("--timeout", type=float, default=1800.0,
                         help="server safety timeout per client response, seconds")
     args = parser.parse_args()
+    net_cfg = parse_condition(args.condition)
+    print(net_cfg.describe())
 
     root = project_root()
     with open(args.config, encoding="utf-8") as f:
@@ -194,9 +206,9 @@ def main() -> None:
 
     # Loggers (same columns as run_single.py).
     if method_name == "osfed":
-        rounds_columns, clients_columns = ROUNDS_COLUMNS_OSFED, CLIENTS_COLUMNS_OSFED
+        rounds_columns, clients_columns = ROUNDS_COLUMNS_OSFED, CLIENTS_COLUMNS_OSFED + NET_CLIENT_COLUMNS
     else:
-        rounds_columns, clients_columns = ROUNDS_COLUMNS, CLIENTS_COLUMNS
+        rounds_columns, clients_columns = ROUNDS_COLUMNS, CLIENTS_COLUMNS + NET_CLIENT_COLUMNS
     rounds_log = CsvLogger(run_dir / "rounds.csv", rounds_columns)
     clients_log = CsvLogger(run_dir / "clients.csv", clients_columns)
 
@@ -216,7 +228,7 @@ def main() -> None:
         in_qs[cid] = in_q
         p = ctx.Process(
             target=client_worker,
-            args=(cid, cfg, indices.tolist(), str(device), in_q, out_q),
+            args=(cid, cfg, indices.tolist(), str(device), in_q, out_q, net_cfg, n_clients),
             daemon=True,
         )
         p.start()
@@ -291,6 +303,9 @@ def main() -> None:
                 "snapshot_opt_s": round(float(info["snapshot_opt_s"]), 3),
                 "upload_bytes": r["payload_bytes"],
                 "download_bytes": download_bytes_per_client,
+                "net_download_s": round(info.get("net_download_s", 0.0), 3),
+                "slow_extra_s": round(info.get("slow_extra_s", 0.0), 3),
+                "net_upload_s": round(info.get("net_upload_s", 0.0), 3),
             }
             if method_name == "osfed":
                 row.update(match_loss_final=float(info["match_loss_final"]),

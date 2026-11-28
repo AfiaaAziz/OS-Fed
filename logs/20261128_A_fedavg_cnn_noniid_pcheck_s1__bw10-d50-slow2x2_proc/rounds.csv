@@ -1,0 +1,4 @@
+run_id,round,test_acc,test_loss,upload_bytes_total,download_bytes_total,round_wall_s,server_wait_s,cum_wall_s,max_client_compute_s
+20261128_A_fedavg_cnn_noniid_pcheck_s1__bw10-d50-slow2x2_proc,1,0.1448,2.2941,21803920,21803920,57.305,13.814,57.305,13.301
+20261128_A_fedavg_cnn_noniid_pcheck_s1__bw10-d50-slow2x2_proc,2,0.156,2.275,21803920,21803920,45.602,11.682,102.907,11.302
+20261128_A_fedavg_cnn_noniid_pcheck_s1__bw10-d50-slow2x2_proc,3,0.1639,2.268,21803920,21803920,54.193,16.859,157.101,15.895

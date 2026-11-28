@@ -34,3 +34,6 @@ Status: DONE = decided, PROVISIONAL = decided for now, revisit at the step shown
 - **ec0 (no error compensation) is STABLE**: residual recovers to ~0.32 and cos_sim to ~0.95 by round 20, accuracy rising (0.40 at round 20, still climbing), no blowup. (run 20261124_A_osfed_cnn_noniid_g4ec0_s1, 20 rounds)
 - DECISION: report ec0 (stable) as our OS-Fed result for the small-CNN tier, labeled "OS-Fed without error compensation (student-scale, reduced)". Stabilizing ec1 (error clipping / server step damping / more L-BFGS iters to cut early residual) is optional improvement work, not required by the gate.
 - 20-round ec1 earlier looked fine (0.4363) but 100 rounds revealed the instability — this is why the plan requires the residual_ratio check over many rounds.
+| D22 | Link model | Each client has its own link. The server link is not a bottleneck. Every message costs bytes x 8 / (Mbps x 1e6) + delay, using payload bytes. Emulated by time.sleep on one computer |
+| D23 | Which clients are slow | The n clients with the highest ids (for slow2x2 with 10 clients: 8 and 9). Extra pause = (factor - 1) x measured compute time |
+| D24 | Conditions used | net0, bw100, bw10, bw1, d50, d200, slow2x2, slow5x4 and their combinations. Real emulated runs only for validation (pcheck config). The full grid comes from Step 11 calculation |

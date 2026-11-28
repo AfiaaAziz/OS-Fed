@@ -1,0 +1,4 @@
+run_id,round,test_acc,test_loss,upload_bytes_total,download_bytes_total,round_wall_s,server_wait_s,cum_wall_s,max_client_compute_s
+20261128_A_fedavg_cnn_noniid_pcheck_s1__bw10_proc,1,0.1448,2.2941,21803920,21803920,53.765,1.339,53.765,14.616
+20261128_A_fedavg_cnn_noniid_pcheck_s1__bw10_proc,2,0.156,2.275,21803920,21803920,35.492,0.565,89.257,13.711
+20261128_A_fedavg_cnn_noniid_pcheck_s1__bw10_proc,3,0.1639,2.268,21803920,21803920,34.179,0.671,123.436,13.434
